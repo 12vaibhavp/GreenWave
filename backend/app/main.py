@@ -59,6 +59,14 @@ async def serve_dashboard():
         return HTMLResponse(content=index_file.read_text())
     return HTMLResponse(content="<h1>GREENWAVE API is running</h1><p>Visit <a href='/docs'>/docs</a> for API specifications.</p>")
 
+# Serve standalone interactive demo
+@app.get("/demo", response_class=HTMLResponse)
+async def serve_demo():
+    demo_file = root_dir / "docs-site" / "index.html"
+    if demo_file.exists():
+        return HTMLResponse(content=demo_file.read_text())
+    return HTMLResponse(content="<h1>Demo page not found</h1>")
+
 
 if __name__ == "__main__":
     import uvicorn

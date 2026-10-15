@@ -23,3 +23,6 @@ python-multipart>=0.0.6
 
 # Testing & Quality
 pytest>=7.4.0
+
+# Document & Report Generation
+python-docx>=1.1.0

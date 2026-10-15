@@ -47,8 +47,8 @@ class Settings:
     DATABASE_PATH: str = str(RESULTS_DIR / "greenwave.db")
     
     # Server
-    HOST: str = "0.0.0.0"
-    PORT: int = 8000
-    DEBUG: bool = False
+    HOST: str = os.getenv("HOST", "0.0.0.0")
+    PORT: int = int(os.getenv("PORT", "8000"))
+    DEBUG: bool = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
 settings = Settings()
