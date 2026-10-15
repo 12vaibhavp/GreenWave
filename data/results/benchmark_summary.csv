@@ -1,0 +1,16 @@
+scenario,controller,controller_label,avg_waiting_time_s,waiting_time_std,waiting_time_reduction_pct,avg_queue_length_veh,queue_length_std,queue_reduction_pct,throughput_veh,travel_time_s,runs
+low,adaptive,Adaptive-Actuated,0.49,0.08,92.99,0.16,0.01,77.88,22.7,47.44,3
+low,fixed_time,Fixed-Time,7.04,2.22,0.0,0.72,0.11,0.0,22.7,55.99,3
+low,q_learning,Q-Learning (Ours),11.05,3.44,-57.01,0.87,0.11,-20.74,22.3,57.25,3
+medium,adaptive,Adaptive-Actuated,1.92,0.06,87.64,0.48,0.01,69.81,64.0,47.37,3
+medium,fixed_time,Fixed-Time,15.53,3.57,0.0,1.59,0.4,0.0,62.7,53.9,3
+medium,q_learning,Q-Learning (Ours),56.01,22.16,-260.68,3.14,0.79,-97.27,58.7,59.85,3
+high,adaptive,Adaptive-Actuated,4.89,1.89,84.7,1.07,0.28,65.59,104.3,49.7,3
+high,fixed_time,Fixed-Time,31.98,2.49,0.0,3.1,0.12,0.0,101.0,55.23,3
+high,q_learning,Q-Learning (Ours),115.09,15.38,-259.91,5.81,0.64,-87.42,99.0,64.02,3
+unbalanced,adaptive,Adaptive-Actuated,8.23,4.75,50.89,1.2,0.46,33.7,80.7,50.34,3
+unbalanced,fixed_time,Fixed-Time,16.76,6.11,0.0,1.81,0.46,0.0,79.0,53.68,3
+unbalanced,q_learning,Q-Learning (Ours),67.38,32.27,-302.13,4.54,1.76,-150.83,73.3,63.98,3
+peak,adaptive,Adaptive-Actuated,15.87,2.51,74.78,2.94,0.45,47.96,133.0,57.25,3
+peak,fixed_time,Fixed-Time,62.94,3.82,0.0,5.65,0.24,0.0,127.0,61.83,3
+peak,q_learning,Q-Learning (Ours),170.85,33.74,-171.47,8.68,1.5,-53.63,125.7,68.93,3

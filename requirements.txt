@@ -1,0 +1,25 @@
+# Core Deep Learning & Computer Vision
+torch>=2.0.0
+torchvision>=0.15.0
+ultralytics>=8.0.0
+opencv-python-headless>=4.8.0
+
+# Traffic Simulation (SUMO & TraCI)
+eclipse-sumo>=1.20.0
+sumolib>=1.20.0
+traci>=1.20.0
+
+# Reinforcement Learning & Data
+numpy>=1.24.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+
+# Backend & WebSockets
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+pydantic>=2.0.0
+websockets>=11.0
+python-multipart>=0.0.6
+
+# Testing & Quality
+pytest>=7.4.0

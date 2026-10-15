@@ -1,0 +1,28 @@
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- Vehicle Type Definitions -->
+    <vType id="car" vClass="passenger" length="4.5" maxSpeed="13.89" accel="2.6" decel="4.5" sigma="0.5" carFollowModel="IDM"/>
+    <vType id="motorcycle" vClass="motorcycle" length="2.2" maxSpeed="14.5" accel="3.0" decel="5.0" sigma="0.5" carFollowModel="IDM"/>
+    <vType id="bus" vClass="bus" length="12.0" maxSpeed="10.5" accel="1.2" decel="3.5" sigma="0.5" carFollowModel="IDM"/>
+    <vType id="truck" vClass="truck" length="9.0" maxSpeed="10.0" accel="1.5" decel="3.5" sigma="0.5" carFollowModel="IDM"/>
+
+    <!-- Route Definitions -->
+    <route id="r_N_S" edges="N2C C2S"/>
+    <route id="r_N_E" edges="N2C C2E"/>
+    <route id="r_N_W" edges="N2C C2W"/>
+    <route id="r_S_N" edges="S2C C2N"/>
+    <route id="r_S_E" edges="S2C C2E"/>
+    <route id="r_S_W" edges="S2C C2W"/>
+    <route id="r_E_W" edges="E2C C2W"/>
+    <route id="r_E_N" edges="E2C C2N"/>
+    <route id="r_E_S" edges="E2C C2S"/>
+    <route id="r_W_E" edges="W2C C2E"/>
+    <route id="r_W_N" edges="W2C C2N"/>
+    <route id="r_W_S" edges="W2C C2S"/>
+
+    <!-- Vehicle Departures -->
+    <vehicle id="veh_1" type="car" route="r_E_N" depart="0.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_2" type="car" route="r_E_N" depart="3.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_3" type="car" route="r_W_S" depart="4.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_4" type="car" route="r_N_S" depart="13.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_5" type="car" route="r_E_S" depart="17.0" departLane="best" departSpeed="max"/>
+</routes>

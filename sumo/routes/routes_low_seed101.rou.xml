@@ -1,0 +1,53 @@
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <!-- Vehicle Type Definitions -->
+    <vType id="car" vClass="passenger" length="4.5" maxSpeed="13.89" accel="2.6" decel="4.5" sigma="0.5" carFollowModel="IDM"/>
+    <vType id="motorcycle" vClass="motorcycle" length="2.2" maxSpeed="14.5" accel="3.0" decel="5.0" sigma="0.5" carFollowModel="IDM"/>
+    <vType id="bus" vClass="bus" length="12.0" maxSpeed="10.5" accel="1.2" decel="3.5" sigma="0.5" carFollowModel="IDM"/>
+    <vType id="truck" vClass="truck" length="9.0" maxSpeed="10.0" accel="1.5" decel="3.5" sigma="0.5" carFollowModel="IDM"/>
+
+    <!-- Route Definitions -->
+    <route id="r_N_S" edges="N2C C2S"/>
+    <route id="r_N_E" edges="N2C C2E"/>
+    <route id="r_N_W" edges="N2C C2W"/>
+    <route id="r_S_N" edges="S2C C2N"/>
+    <route id="r_S_E" edges="S2C C2E"/>
+    <route id="r_S_W" edges="S2C C2W"/>
+    <route id="r_E_W" edges="E2C C2W"/>
+    <route id="r_E_N" edges="E2C C2N"/>
+    <route id="r_E_S" edges="E2C C2S"/>
+    <route id="r_W_E" edges="W2C C2E"/>
+    <route id="r_W_N" edges="W2C C2N"/>
+    <route id="r_W_S" edges="W2C C2S"/>
+
+    <!-- Vehicle Departures -->
+    <vehicle id="veh_1" type="car" route="r_S_E" depart="17.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_2" type="car" route="r_S_E" depart="49.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_3" type="car" route="r_E_W" depart="56.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_4" type="bus" route="r_N_E" depart="59.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_5" type="car" route="r_E_S" depart="66.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_6" type="car" route="r_W_N" depart="88.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_7" type="bus" route="r_S_E" depart="92.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_8" type="car" route="r_S_W" depart="95.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_9" type="bus" route="r_N_W" depart="111.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_10" type="bus" route="r_N_E" depart="113.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_11" type="car" route="r_E_W" depart="120.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_12" type="car" route="r_W_S" depart="133.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_13" type="car" route="r_N_W" depart="134.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_14" type="car" route="r_S_N" depart="156.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_15" type="car" route="r_N_E" depart="163.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_16" type="bus" route="r_W_E" depart="188.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_17" type="car" route="r_W_E" depart="198.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_18" type="car" route="r_N_W" depart="199.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_19" type="car" route="r_W_E" depart="208.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_20" type="car" route="r_W_S" depart="220.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_21" type="car" route="r_E_W" depart="228.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_22" type="truck" route="r_W_S" depart="238.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_23" type="car" route="r_S_W" depart="241.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_24" type="car" route="r_E_N" depart="242.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_25" type="car" route="r_E_S" depart="257.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_26" type="car" route="r_S_W" depart="259.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_27" type="car" route="r_S_W" depart="267.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_28" type="motorcycle" route="r_E_W" depart="271.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_29" type="car" route="r_E_N" depart="281.0" departLane="best" departSpeed="max"/>
+    <vehicle id="veh_30" type="truck" route="r_S_W" depart="296.0" departLane="best" departSpeed="max"/>
+</routes>

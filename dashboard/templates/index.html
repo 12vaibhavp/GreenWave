@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GREENWAVE | VAC V-BOT Intelligent Traffic Control</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="brand">
+      <h1><span>🚦</span> GREENWAVE</h1>
+      <p>VAC V-BOT & Multi-Sensor Control</p>
+    </div>
+
+    <ul class="nav-links">
+      <li><a class="nav-item active" data-page="overview">📊 Overview</a></li>
+      <li><a class="nav-item" data-page="sensors">📡 Multi-Sensor Array (S1, S2, S3)</a></li>
+      <li><a class="nav-item" data-page="signal">🚥 Intersection & Signals</a></li>
+      <li><a class="nav-item" data-page="simulation">🎮 Simulation & VAC V-BOT</a></li>
+      <li><a class="nav-item" data-page="rl">🧠 Reinforcement Learning</a></li>
+      <li><a class="nav-item" data-page="comparison">📈 Benchmarks & Results</a></li>
+      <li><a class="nav-item" data-page="experiments">📁 Experiment Logs</a></li>
+    </ul>
+
+    <div class="system-status">
+      <div class="status-badge">
+        <span class="status-dot" id="system-status-dot"></span>
+        <span id="system-status-text">TraCI Ready</span>
+      </div>
+      <div style="margin-top:6px; font-size:0.75rem;">VAC V-BOT + Multi-Sensors</div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+
+    <!-- PAGE 1: OVERVIEW -->
+    <section id="page-overview" class="page-section active">
+      <div class="section-header">
+        <h2>Executive Overview</h2>
+        <p>Real-Time Intelligent Traffic Signal Control using Multi-Stage Sensor Arrays (S1, S2, S3), Dilemma Zone Protection, and VAC V-BOT Autonomous Control.</p>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-title">Active Controller</span>
+          <div class="kpi-value" id="kpi-active-controller" style="color:var(--accent-green);">VAC-V-BOT</div>
+          <span class="kpi-sub">Vehicle-Actuated + Dilemma Protection</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-title">Total Vehicles Served</span>
+          <div class="kpi-value" id="kpi-throughput">0</div>
+          <span class="kpi-sub">Vehicles cleared through intersection</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-title">Intersection Queue</span>
+          <div class="kpi-value" id="kpi-queue">0</div>
+          <span class="kpi-sub">Currently halted vehicles</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-title">Total Waiting Time</span>
+          <div class="kpi-value" id="kpi-wait">0.0s</div>
+          <span class="kpi-sub">Cumulative approach delay</span>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <h3 class="panel-title">System Architecture: Sensor-Actuated Model</h3>
+          <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.6; margin-bottom:16px;">
+            Replaces vision with all-weather physical sensor arrays and Dilemma Zone Protection (DZP):
+          </p>
+          <ul style="font-size:0.85rem; color:var(--text-secondary); line-height:1.8; margin-left:20px;">
+            <li><strong>S1: Inductive Loops (15m):</strong> Precise vehicle presence & stopped queue counting.</li>
+            <li><strong>S2: Dilemma Zone Sensors (50m):</strong> Prevents red-light running by extending green for fast vehicles.</li>
+            <li><strong>S3: mmWave Doppler Radar (100m):</strong> Tracks advance approach speeds & arrival ETAs (t = d / v).</li>
+            <li><strong>VAC V-BOT Decision Engine:</strong> Computes weighted urgency f(R,G,R,G) = g(&sum; x_i S_i).</li>
+          </ul>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel-title">Key Benchmark Findings</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Traffic Scenario</th>
+                  <th>Fixed-Time Wait</th>
+                  <th>VAC V-BOT Wait</th>
+                  <th>Reduction %</th>
+                </tr>
+              </thead>
+              <tbody id="overview-benchmark-table">
+                <tr><td>Low (400 vph)</td><td>7.04s</td><td style="color:var(--accent-green); font-weight:700;">0.49s</td><td style="color:var(--accent-green); font-weight:700;">-92.99%</td></tr>
+                <tr><td>Medium (900 vph)</td><td>15.53s</td><td style="color:var(--accent-green); font-weight:700;">1.92s</td><td style="color:var(--accent-green); font-weight:700;">-87.64%</td></tr>
+                <tr><td>High (1600 vph)</td><td>31.98s</td><td style="color:var(--accent-green); font-weight:700;">4.89s</td><td style="color:var(--accent-green); font-weight:700;">-84.70%</td></tr>
+                <tr><td>Peak (1800 vph)</td><td>62.94s</td><td style="color:var(--accent-green); font-weight:700;">15.87s</td><td style="color:var(--accent-green); font-weight:700;">-74.78%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 2: MULTI-SENSOR ARRAY (S1, S2, S3) -->
+    <section id="page-sensors" class="page-section">
+      <div class="section-header">
+        <h2>Multi-Stage Traffic Sensor Array (S1, S2, S3)</h2>
+        <p>Physical sensor telemetry: Inductive Loops, Ultrasonic Dilemma Detectors, and mmWave Doppler Radar.</p>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-title">S1: Stopline Loops (15m)</span>
+          <div class="kpi-value" style="color:#3b82f6;">Queue & Pres</div>
+          <span class="kpi-sub">Inductive Loop Detectors</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-title">S2: Dilemma Sensor (50m)</span>
+          <div class="kpi-value" style="color:#f59e0b;">Safety & DZP</div>
+          <span class="kpi-sub">Collision Prevention</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-title">S3: Doppler Radar (100m)</span>
+          <div class="kpi-value" style="color:#10b981;">Speed & ETA</div>
+          <span class="kpi-sub">Advance Arrival Tracking</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 class="panel-title">Spatial Approach Sensor Telemetry</h3>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Approach Arm</th>
+                <th>S1 Loop Queue (15m)</th>
+                <th>S2 Dilemma Status (50m)</th>
+                <th>S3 Radar Approaching (100m)</th>
+                <th>Radar Approach Speed</th>
+                <th>Arrival ETA (t = d/v)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>North (SC)</strong></td>
+                <td id="s-n-s1">0 veh</td>
+                <td><span class="badge" id="s-n-s2" style="color:#10b981;">CLEAR</span></td>
+                <td id="s-n-s3">0 veh</td>
+                <td id="s-n-spd">0.0 m/s</td>
+                <td id="s-n-eta">--</td>
+              </tr>
+              <tr>
+                <td><strong>South (S)</strong></td>
+                <td id="s-s-s1">0 veh</td>
+                <td><span class="badge" id="s-s-s2" style="color:#10b981;">CLEAR</span></td>
+                <td id="s-s-s3">0 veh</td>
+                <td id="s-s-spd">0.0 m/s</td>
+                <td id="s-s-eta">--</td>
+              </tr>
+              <tr>
+                <td><strong>East (SA)</strong></td>
+                <td id="s-e-s1">0 veh</td>
+                <td><span class="badge" id="s-e-s2" style="color:#10b981;">CLEAR</span></td>
+                <td id="s-e-s3">0 veh</td>
+                <td id="s-e-spd">0.0 m/s</td>
+                <td id="s-e-eta">--</td>
+              </tr>
+              <tr>
+                <td><strong>West (SB)</strong></td>
+                <td id="s-w-s1">0 veh</td>
+                <td><span class="badge" id="s-w-s2" style="color:#10b981;">CLEAR</span></td>
+                <td id="s-w-s3">0 veh</td>
+                <td id="s-w-spd">0.0 m/s</td>
+                <td id="s-w-eta">--</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 3: INTERSECTION & SIGNALS -->
+    <section id="page-signal" class="page-section">
+      <div class="section-header">
+        <h2>Traffic Signal & Intersection Monitor</h2>
+        <p>Live schematic showing current signal phases, active green timers, and approach queues.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <h3 class="panel-title">4-Way Intersection Schematic</h3>
+          <div class="intersection-box">
+            <div class="road-ns"></div>
+            <div class="road-ew"></div>
+            <div class="intersection-center">Junction C</div>
+
+            <!-- Signal Badges -->
+            <div class="signal-badge sig-north sig-green" id="sig-north-badge">North: GREEN</div>
+            <div class="signal-badge sig-south sig-green" id="sig-south-badge">South: GREEN</div>
+            <div class="signal-badge sig-east sig-red" id="sig-east-badge">East: RED</div>
+            <div class="signal-badge sig-west sig-red" id="sig-west-badge">West: RED</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel-title">Approach Queue & Density Breakdown</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Approach</th>
+                  <th>Active Veh</th>
+                  <th>Queue</th>
+                  <th>Waiting Time</th>
+                  <th>Density Level</th>
+                </tr>
+              </thead>
+              <tbody id="approach-breakdown-tbody">
+                <tr><td>North (SC)</td><td id="app-n-cnt">0</td><td id="app-n-q">0</td><td id="app-n-w">0.0s</td><td><span class="badge" id="app-n-d">LOW</span></td></tr>
+                <tr><td>South (S)</td><td id="app-s-cnt">0</td><td id="app-s-q">0</td><td id="app-s-w">0.0s</td><td><span class="badge" id="app-s-d">LOW</span></td></tr>
+                <tr><td>East (SA)</td><td id="app-e-cnt">0</td><td id="app-e-q">0</td><td id="app-e-w">0.0s</td><td><span class="badge" id="app-e-d">LOW</span></td></tr>
+                <tr><td>West (SB)</td><td id="app-w-cnt">0</td><td id="app-w-q">0</td><td id="app-w-w">0.0s</td><td><span class="badge" id="app-w-d">LOW</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 4: SIMULATION CONTROL -->
+    <section id="page-simulation" class="page-section">
+      <div class="section-header">
+        <h2>Simulation Control & VAC V-BOT Live Center</h2>
+        <p>Launch live SUMO simulations with VAC V-BOT or baseline controllers.</p>
+      </div>
+
+      <div class="panel">
+        <h3 class="panel-title">Run Configuration</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="sim-ctrl-select">Controller</label>
+            <select id="sim-ctrl-select" class="form-control">
+              <option value="vac_vbot" selected>VAC V-BOT (Multi-Sensor & Dilemma Protection)</option>
+              <option value="adaptive">Adaptive-Actuated (Rule-Based)</option>
+              <option value="q_learning">Q-Learning (Trained Policy)</option>
+              <option value="fixed_time">Fixed-Time (30s NS / 30s EW)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="sim-scen-select">Traffic Demand Scenario</label>
+            <select id="sim-scen-select" class="form-control">
+              <option value="medium" selected>Medium (900 veh/hr)</option>
+              <option value="low">Low (400 veh/hr)</option>
+              <option value="high">High (1600 veh/hr)</option>
+              <option value="unbalanced">Unbalanced (80% NS / 20% EW)</option>
+              <option value="peak">Peak Surge (1800 veh/hr)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="sim-seed-input">Random Seed</label>
+            <input type="number" id="sim-seed-input" class="form-control" value="42">
+          </div>
+
+          <div class="form-group">
+            <label for="sim-duration-input">Duration (Steps/Sec)</label>
+            <input type="number" id="sim-duration-input" class="form-control" value="1800">
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="startSimulation()">▶ Start Simulation</button>
+          <button class="btn btn-danger" onclick="stopSimulation()">⏹ Stop Simulation</button>
+          <button class="btn btn-secondary" onclick="resetSimulation()">↺ Reset</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <h3 class="panel-title">Real-Time Queue Length vs Step</h3>
+          <canvas id="chart-queue" height="200"></canvas>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel-title">Real-Time Waiting Time (s) vs Step</h3>
+          <canvas id="chart-wait" height="200"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 5: REINFORCEMENT LEARNING -->
+    <section id="page-rl" class="page-section">
+      <div class="section-header">
+        <h2>Reinforcement Learning Hub</h2>
+        <p>Tabular Q-Learning state exploration, hyperparameter settings, and Q-value policy inspection.</p>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-title">Learning Rate (&alpha;)</span>
+          <div class="kpi-value" id="rl-alpha">0.10</div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-title">Discount Factor (&gamma;)</span>
+          <div class="kpi-value" id="rl-gamma">0.95</div>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-title">Current Epsilon (&epsilon;)</span>
+          <div class="kpi-value" id="rl-epsilon">0.00</div>
+          <span class="kpi-sub">Greedy Policy</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-title">Discovered States</span>
+          <div class="kpi-value" id="rl-states-cnt">0</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3 class="panel-title">Sample Q-Table Entries</h3>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>State (NS_Q, EW_Q, Phase, Dur)</th>
+                <th>Q(Keep Phase)</th>
+                <th>Q(Switch Phase)</th>
+                <th>Optimal Action</th>
+              </tr>
+            </thead>
+            <tbody id="qtable-sample-tbody">
+              <tr><td colspan="4" style="text-align:center;">Loading Q-Table entries...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 6: BENCHMARKS & COMPARISON -->
+    <section id="page-comparison" class="page-section">
+      <div class="section-header">
+        <h2>Comparative Performance Analysis</h2>
+        <p>Fair comparison of Fixed-Time, VAC V-BOT, and Q-Learning controllers across identical traffic scenarios.</p>
+      </div>
+
+      <div class="panel">
+        <h3 class="panel-title">Consolidated Benchmark Summary</h3>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Scenario</th>
+                <th>Controller</th>
+                <th>Avg Wait Time (s)</th>
+                <th>Wait Reduction %</th>
+                <th>Avg Queue (veh)</th>
+                <th>Queue Reduction %</th>
+                <th>Throughput</th>
+              </tr>
+            </thead>
+            <tbody id="benchmark-full-tbody">
+              <tr><td colspan="7" style="text-align:center;">Loading benchmark data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 7: EXPERIMENT LOGS -->
+    <section id="page-experiments" class="page-section">
+      <div class="section-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h2>Experiment Run Database</h2>
+          <p>Complete historical log of all reproducible simulation runs.</p>
+        </div>
+        <a href="/api/v1/experiments/export/csv" class="btn btn-secondary">📥 Export CSV</a>
+      </div>
+
+      <div class="panel">
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Timestamp</th>
+                <th>Controller</th>
+                <th>Scenario</th>
+                <th>Seed</th>
+                <th>Avg Wait (s)</th>
+                <th>Avg Queue</th>
+                <th>Throughput</th>
+                <th>Travel Time (s)</th>
+              </tr>
+            </thead>
+            <tbody id="experiments-db-tbody">
+              <tr><td colspan="9" style="text-align:center;">Loading logged experiments...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

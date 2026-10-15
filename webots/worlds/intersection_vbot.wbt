@@ -1,0 +1,288 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+
+WorldInfo {
+  info [
+    "GREENWAVE: VAC V-BOT 3D Traffic Intersection Simulation"
+    "Multi-Sensor Arrays (S1, S2, S3) with Dilemma Zone Protection in Webots"
+  ]
+  title "GREENWAVE VAC V-BOT 3D Intersection"
+  basicTimeStep 32
+  coordinateSystem "NUE"
+}
+
+Viewpoint {
+  orientation -0.57 0.57 0.57 2.09
+  position 0 60 70
+}
+
+TexturedBackground {
+}
+
+TexturedBackgroundLight {
+}
+
+RectangleArena {
+  floorSize 250 250
+  floorTileSize 25 25
+}
+
+# ================================================================
+# ROAD INFRASTRUCTURE (North-South & East-West Crossroad)
+# ================================================================
+Solid {
+  translation 0 0.05 0
+  children [
+    # North-South Road (Width 10m, Length 220m)
+    Pose {
+      translation 0 0 0
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.15 0.15 0.15
+            roughness 0.8
+          }
+          geometry Box {
+            size 10 0.1 220
+          }
+        }
+      ]
+    }
+    # East-West Road (Width 220m, Length 10m)
+    Pose {
+      translation 0 0 0
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.15 0.15 0.15
+            roughness 0.8
+          }
+          geometry Box {
+            size 220 0.1 10
+          }
+        }
+      ]
+    }
+  ]
+}
+
+# ================================================================
+# VAC V-BOT SUPERVISOR & TRAFFIC LIGHT ACTUATORS
+# ================================================================
+Robot {
+  name "traffic_supervisor"
+  controller "traffic_light_supervisor"
+  supervisor TRUE
+  children [
+    # Traffic Light Signal Post (Junction Center)
+    Solid {
+      translation 0 0 0
+      children [
+        # Center Pillar
+        Pose {
+          translation 6 3 6
+          children [
+            Shape {
+              appearance PBRAppearance { baseColor 0.2 0.2 0.2 }
+              geometry Cylinder { height 6 radius 0.2 }
+            }
+          ]
+        }
+      ]
+    }
+
+    # North-South Traffic Light LEDs
+    LED {
+      name "led_ns_red"
+      translation 0 6 7
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.8 0 0 emissiveColor 1 0 0 }
+          geometry Sphere { radius 0.4 }
+        }
+      ]
+      color [ 1 0 0 ]
+    }
+    LED {
+      name "led_ns_yellow"
+      translation 0 5 7
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.8 0.6 0 }
+          geometry Sphere { radius 0.4 }
+        }
+      ]
+      color [ 1 0.8 0 ]
+    }
+    LED {
+      name "led_ns_green"
+      translation 0 4 7
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0 0.8 0 emissiveColor 0 1 0 }
+          geometry Sphere { radius 0.4 }
+        }
+      ]
+      color [ 0 1 0 ]
+    }
+
+    # East-West Traffic Light LEDs
+    LED {
+      name "led_ew_red"
+      translation 7 6 0
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.8 0 0 emissiveColor 1 0 0 }
+          geometry Sphere { radius 0.4 }
+        }
+      ]
+      color [ 1 0 0 ]
+    }
+    LED {
+      name "led_ew_yellow"
+      translation 7 5 0
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.8 0.6 0 }
+          geometry Sphere { radius 0.4 }
+        }
+      ]
+      color [ 1 0.8 0 ]
+    }
+    LED {
+      name "led_ew_green"
+      translation 7 4 0
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0 0.8 0 emissiveColor 0 1 0 }
+          geometry Sphere { radius 0.4 }
+        }
+      ]
+      color [ 0 1 0 ]
+    }
+
+    # ------------------------------------------------------------
+    # S1: STOPLINE INDUCTIVE LOOP DETECTORS (15m from stopline)
+    # ------------------------------------------------------------
+    DistanceSensor {
+      name "ds_s_s1"
+      translation 2.5 0.2 20
+      rotation 1 0 0 1.57
+      lookupTable [ 0 0 0, 10 1000 0 ]
+    }
+    DistanceSensor {
+      name "ds_n_s1"
+      translation -2.5 0.2 -20
+      rotation 1 0 0 -1.57
+      lookupTable [ 0 0 0, 10 1000 0 ]
+    }
+    DistanceSensor {
+      name "ds_e_s1"
+      translation 20 0.2 -2.5
+      rotation 0 0 1 1.57
+      lookupTable [ 0 0 0, 10 1000 0 ]
+    }
+    DistanceSensor {
+      name "ds_w_s1"
+      translation -20 0.2 2.5
+      rotation 0 0 1 -1.57
+      lookupTable [ 0 0 0, 10 1000 0 ]
+    }
+
+    # ------------------------------------------------------------
+    # S2: DILEMMA ZONE SENSORS (50m from stopline)
+    # ------------------------------------------------------------
+    DistanceSensor {
+      name "ds_s_s2"
+      translation 2.5 0.5 55
+      rotation 1 0 0 1.57
+      lookupTable [ 0 0 0, 15 1000 0 ]
+    }
+    DistanceSensor {
+      name "ds_n_s2"
+      translation -2.5 0.5 -55
+      rotation 1 0 0 -1.57
+      lookupTable [ 0 0 0, 15 1000 0 ]
+    }
+    DistanceSensor {
+      name "ds_e_s2"
+      translation 55 0.5 -2.5
+      rotation 0 0 1 1.57
+      lookupTable [ 0 0 0, 15 1000 0 ]
+    }
+    DistanceSensor {
+      name "ds_w_s2"
+      translation -55 0.5 2.5
+      rotation 0 0 1 -1.57
+      lookupTable [ 0 0 0, 15 1000 0 ]
+    }
+
+    # ------------------------------------------------------------
+    # S3: mmWAVE DOPPLER RADARS (100m Upstream)
+    # ------------------------------------------------------------
+    Radar {
+      name "radar_s_s3"
+      translation 2.5 1.5 105
+      rotation 0 1 0 3.14159
+      minRange 1
+      maxRange 120
+      horizontalFieldOfView 0.8
+    }
+    Radar {
+      name "radar_n_s3"
+      translation -2.5 1.5 -105
+      rotation 0 1 0 0
+      minRange 1
+      maxRange 120
+      horizontalFieldOfView 0.8
+    }
+    Radar {
+      name "radar_e_s3"
+      translation 105 1.5 -2.5
+      rotation 0 1 0 1.57
+      minRange 1
+      maxRange 120
+      horizontalFieldOfView 0.8
+    }
+    Radar {
+      name "radar_w_s3"
+      translation -105 1.5 2.5
+      rotation 0 1 0 -1.57
+      minRange 1
+      maxRange 120
+      horizontalFieldOfView 0.8
+    }
+  ]
+}
+
+# ================================================================
+# SAMPLE VEHICLES PLACED IN 3D WORLD
+# ================================================================
+Solid {
+  name "car_south_1"
+  translation 2.5 0.7 30
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0 0.3 0.8 roughness 0.2 }
+      geometry Box { size 2 1.4 4.2 }
+    }
+  ]
+  boundingObject Box { size 2 1.4 4.2 }
+  physics Physics {}
+}
+
+Solid {
+  name "car_east_1"
+  translation 45 0.7 -2.5
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0.9 0.1 0.1 roughness 0.2 }
+      geometry Box { size 4.2 1.4 2 }
+    }
+  ]
+  boundingObject Box { size 4.2 1.4 2 }
+  physics Physics {}
+}

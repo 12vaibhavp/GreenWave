@@ -1,0 +1,29 @@
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <!-- ==================================================== -->
+    <!-- MULTI-STAGE TRAFFIC SENSOR ARRAYS (S1, S2, S3)       -->
+    <!-- ==================================================== -->
+    <inductionLoop id="det_N_s1_l0" lane="N2C_0" pos="225.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_N_s2_l0" lane="N2C_0" pos="190.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_N_s3_l0" lane="N2C_0" pos="140.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_N_s1_l1" lane="N2C_1" pos="225.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_N_s2_l1" lane="N2C_1" pos="190.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_N_s3_l1" lane="N2C_1" pos="140.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_S_s1_l0" lane="S2C_0" pos="225.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_S_s2_l0" lane="S2C_0" pos="190.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_S_s3_l0" lane="S2C_0" pos="140.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_S_s1_l1" lane="S2C_1" pos="225.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_S_s2_l1" lane="S2C_1" pos="190.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_S_s3_l1" lane="S2C_1" pos="140.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_E_s1_l0" lane="E2C_0" pos="225.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_E_s2_l0" lane="E2C_0" pos="190.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_E_s3_l0" lane="E2C_0" pos="140.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_E_s1_l1" lane="E2C_1" pos="225.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_E_s2_l1" lane="E2C_1" pos="190.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_E_s3_l1" lane="E2C_1" pos="140.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_W_s1_l0" lane="W2C_0" pos="225.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_W_s2_l0" lane="W2C_0" pos="190.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_W_s3_l0" lane="W2C_0" pos="140.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_W_s1_l1" lane="W2C_1" pos="225.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_W_s2_l1" lane="W2C_1" pos="190.0" freq="1.0" file="NUL"/>
+    <inductionLoop id="det_W_s3_l1" lane="W2C_1" pos="140.0" freq="1.0" file="NUL"/>
+</additional>
