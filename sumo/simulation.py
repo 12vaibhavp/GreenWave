@@ -155,6 +155,9 @@ class SumoSimulation:
             "--time-to-teleport", "-1"
         ]
 
+        if self.gui:
+            sumo_cmd.append("--start")
+
         traci.start(sumo_cmd)
         self.is_running = True
         self.current_step = 0
