@@ -18,6 +18,7 @@ from sumo.simulation import (
 from sumo.controllers.fixed_time import FixedTimeController
 from sumo.controllers.adaptive import AdaptiveController
 from sumo.controllers.q_learning_controller import QLearningController
+from sumo.controllers.vac_vbot import VacVBotController
 from backend.app.config.settings import settings
 from backend.app.models.database import save_experiment_result
 
@@ -87,6 +88,8 @@ class SimulationService:
             self.controller = AdaptiveController(min_green=10, max_green=60)
         elif controller == "q_learning":
             self.controller = QLearningController(q_table_path=q_table_path)
+        elif controller == "vac_vbot":
+            self.controller = VacVBotController()
         else:
             raise ValueError(f"Unknown controller '{controller}'")
 
