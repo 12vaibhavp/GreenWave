@@ -67,6 +67,15 @@ async def serve_demo():
         return HTMLResponse(content=demo_file.read_text())
     return HTMLResponse(content="<h1>Demo page not found</h1>")
 
+# Serve 3D Digital Twin Simulation
+@app.get("/3d", response_class=HTMLResponse)
+async def serve_3d():
+    sim_3d_file = root_dir / "3d_simulation.html"
+    if sim_3d_file.exists():
+        return HTMLResponse(content=sim_3d_file.read_text())
+    return HTMLResponse(content="<h1>3D Simulation file not found</h1>")
+
+
 
 if __name__ == "__main__":
     import uvicorn

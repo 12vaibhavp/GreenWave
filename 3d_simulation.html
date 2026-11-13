@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GREENWAVE 3D — VAC V-BOT Digital Twin Simulation</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      user-select: none;
+    }
+    body {
+      background-color: #0b0f19;
+      color: #f3f4f6;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    /* Top HUD Header */
+    .hud-top {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .hud-card {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(75, 85, 99, 0.4);
+      border-radius: 12px;
+      padding: 12px 20px;
+      pointer-events: auto;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #10b981;
+    }
+    .brand-title span {
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid #10b981;
+      padding: 2px 8px;
+      border-radius: 6px;
+      color: #34d399;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 8px;
+    }
+    .badge-green {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid #10b981;
+      color: #10b981;
+    }
+    .badge-yellow {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid #f59e0b;
+      color: #f59e0b;
+    }
+    .badge-red {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid #ef4444;
+      color: #ef4444;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    /* Dilemma Zone Alert Banner */
+    #dzp-alert {
+      display: none;
+      background: rgba(245, 158, 11, 0.25);
+      border: 1px solid #f59e0b;
+      color: #fbbf24;
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 6px 16px;
+      border-radius: 8px;
+      animation: alertBlink 1s infinite;
+    }
+    @keyframes alertBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Left Sensor Telemetry Panel */
+    .hud-left {
+      position: absolute;
+      top: 90px;
+      left: 20px;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .panel-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .telemetry-table {
+      width: 100%;
+      font-size: 0.78rem;
+      border-collapse: collapse;
+    }
+    .telemetry-table th {
+      text-align: left;
+      color: #9ca3af;
+      padding: 6px 4px;
+      border-bottom: 1px solid #374151;
+    }
+    .telemetry-table td {
+      padding: 6px 4px;
+      border-bottom: 1px solid rgba(55, 65, 81, 0.4);
+      color: #f3f4f6;
+    }
+    .sensor-pill {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.7rem;
+    }
+    .pill-s1 { background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.5); }
+    .pill-s2 { background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.5); }
+    .pill-s3 { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.5); }
+
+    /* Legend Box */
+    .sensor-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.75rem;
+      margin-top: 8px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #d1d5db;
+    }
+    .legend-color {
+      width: 14px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    /* Bottom Control Bar */
+    .hud-bottom {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .btn {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(75, 85, 99, 0.5);
+      color: #f3f4f6;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover {
+      background: rgba(31, 41, 55, 0.95);
+      border-color: #10b981;
+      transform: translateY(-2px);
+    }
+    .btn-active {
+      background: #10b981 !important;
+      color: #0b0f19 !important;
+      border-color: #10b981 !important;
+    }
+    .btn-danger {
+      border-color: rgba(239, 68, 68, 0.6);
+    }
+    .btn-danger:hover {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    /* Right Camera Switcher */
+    .hud-right {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .cam-btn {
+      pointer-events: auto;
+      font-size: 0.75rem;
+      padding: 8px 12px;
+    }
+  </style>
+  <!-- Three.js & OrbitControls from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+  <!-- Three.js Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- Top HUD Header -->
+  <div class="hud-top">
+    <div class="hud-card">
+      <div class="brand-title">
+        🚦 GREENWAVE <span>3D DIGITAL TWIN</span>
+      </div>
+      <div style="font-size:0.75rem; color:#9ca3af; margin-top:4px;">
+        VAC V-BOT Autonomous Multi-Sensor Control & Dilemma Zone Protection
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; align-items:center;">
+      <div id="dzp-alert">
+        ⚠️ DZP: DILEMMA ZONE HOLD ACTIVE (+2s)
+      </div>
+      <div class="hud-card status-badge badge-green" id="phase-badge">
+        <span class="pulse-dot"></span>
+        <span id="phase-text">NORTH-SOUTH GREEN (18s)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Left Multi-Sensor Array Telemetry -->
+  <div class="hud-left">
+    <div class="hud-card">
+      <div class="panel-title">
+        <span>📡 Spatial Sensor Array</span>
+        <span id="ctrl-mode" style="color:#10b981; font-weight:800;">VAC V-BOT</span>
+      </div>
+      <table class="telemetry-table">
+        <thead>
+          <tr>
+            <th>Approach</th>
+            <th>S1 (15m)</th>
+            <th>S2 (50m)</th>
+            <th>S3 (100m)</th>
+          </tr>
+        </thead>
+        <tbody id="sensor-tbody">
+          <tr>
+            <td><strong>North (SC)</strong></td>
+            <td><span class="sensor-pill pill-s1" id="s1-n">0 veh</span></td>
+            <td><span id="s2-n" style="color:#10b981;">CLEAR</span></td>
+            <td><span class="sensor-pill pill-s3" id="s3-n">0 veh (0 m/s)</span></td>
+          </tr>
+          <tr>
+            <td><strong>South (S)</strong></td>
+            <td><span class="sensor-pill pill-s1" id="s1-s">0 veh</span></td>
+            <td><span id="s2-s" style="color:#10b981;">CLEAR</span></td>
+            <td><span class="sensor-pill pill-s3" id="s3-s">0 veh (0 m/s)</span></td>
+          </tr>
+          <tr>
+            <td><strong>East (SA)</strong></td>
+            <td><span class="sensor-pill pill-s1" id="s1-e">0 veh</span></td>
+            <td><span id="s2-e" style="color:#10b981;">CLEAR</span></td>
+            <td><span class="sensor-pill pill-s3" id="s3-e">0 veh (0 m/s)</span></td>
+          </tr>
+          <tr>
+            <td><strong>West (SB)</strong></td>
+            <td><span class="sensor-pill pill-s1" id="s1-w">0 veh</span></td>
+            <td><span id="s2-w" style="color:#10b981;">CLEAR</span></td>
+            <td><span class="sensor-pill pill-s3" id="s3-w">0 veh (0 m/s)</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Sensor Visual Legend -->
+      <div class="sensor-legend">
+        <div class="legend-item">
+          <div class="legend-color" style="background:#06b6d4;"></div>
+          <span><strong>S1 (15m):</strong> Inductive Loop (Queue presence)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background:#f97316;"></div>
+          <span><strong>S2 (50m):</strong> Dilemma Zone (40-60m collision guard)</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color" style="background:#10b981;"></div>
+          <span><strong>S3 (100m):</strong> mmWave Radar (Advance velocity & ETA)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Performance Counters -->
+    <div class="hud-card" style="font-size:0.8rem; display:flex; justify-content:space-between;">
+      <div>
+        <div style="color:#9ca3af; font-size:0.7rem;">TOTAL PASSED</div>
+        <div id="stat-served" style="font-size:1.2rem; font-weight:800; color:#10b981;">0</div>
+      </div>
+      <div>
+        <div style="color:#9ca3af; font-size:0.7rem;">AVG WAIT (s)</div>
+        <div id="stat-wait" style="font-size:1.2rem; font-weight:800; color:#f59e0b;">0.0s</div>
+      </div>
+      <div>
+        <div style="color:#9ca3af; font-size:0.7rem;">DZP HOLDS</div>
+        <div id="stat-holds" style="font-size:1.2rem; font-weight:800; color:#38bdf8;">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Control Bar -->
+  <div class="hud-bottom">
+    <button class="btn btn-active" id="btn-toggle-ctrl" onclick="toggleController()">
+      🤖 Controller: VAC V-BOT
+    </button>
+    <button class="btn" id="btn-surge" onclick="spawnTrafficSurge()">
+      ⚡ Spawn Peak Surge (15 Veh)
+    </button>
+    <button class="btn" id="btn-toggle-sensors" onclick="toggleSensorVisuals()">
+      👁️ Toggle 3D Sensor Rays
+    </button>
+    <button class="btn" onclick="resetSimulation()">
+      ↺ Reset Scene
+    </button>
+  </div>
+
+  <!-- Right Camera View Controls -->
+  <div class="hud-right">
+    <div style="font-size:0.7rem; color:#9ca3af; text-align:right; margin-bottom:2px;">CAMERA PRESETS</div>
+    <button class="btn cam-btn" onclick="setCameraView('iso')">🎥 3D Perspective</button>
+    <button class="btn cam-btn" onclick="setCameraView('top')">🛰️ Top-Down (2D)</button>
+    <button class="btn cam-btn" onclick="setCameraView('north')">🚘 North Approach (Driver POV)</button>
+    <button class="btn cam-btn" onclick="setCameraView('east')">🚗 East Approach (Radar POV)</button>
+  </div>
+
+  <!-- 3D Simulation Logic -->
+  <script>
+    // -------------------------------------------------------------
+    // 1. SCENE, CAMERA, RENDERER & ORBIT CONTROLS
+    // -------------------------------------------------------------
+    const container = document.getElementById("canvas-container");
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0f172a);
+    scene.fog = new THREE.FogExp2(0x0f172a, 0.0035);
+
+    const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(110, 95, 120);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxPolarAngle = Math.PI / 2 - 0.05; // Do not go under ground
+    controls.minDistance = 20;
+    controls.maxDistance = 350;
+    controls.target.set(0, 0, 0);
+
+    // -------------------------------------------------------------
+    // 2. LIGHTING SETUP
+    // -------------------------------------------------------------
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfff5e6, 0.95);
+    sunLight.position.set(120, 180, 90);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.width = 2048;
+    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.camera.near = 10;
+    sunLight.shadow.camera.far = 400;
+    sunLight.shadow.camera.left = -120;
+    sunLight.shadow.camera.right = 120;
+    sunLight.shadow.camera.top = 120;
+    sunLight.shadow.camera.bottom = -120;
+    scene.add(sunLight);
+
+    // -------------------------------------------------------------
+    // 3. ENVIRONMENT & 4-WAY INTERSECTION GEOMETRY
+    // -------------------------------------------------------------
+    const ROAD_WIDTH = 14;      // 2 lanes in each direction (3.5m each)
+    const HALF_ROAD = ROAD_WIDTH / 2;
+    const ROAD_LENGTH = 280;   // Extends 140m from center
+    const STOPLINE_DIST = 15;  // S1 loop position
+    const DILEMMA_DIST = 50;   // S2 position
+    const RADAR_DIST = 100;    // S3 position
+
+    // Terrain (Grass)
+    const terrainGeo = new THREE.PlaneGeometry(600, 600);
+    const terrainMat = new THREE.MeshStandardMaterial({ color: 0x141e2e, roughness: 0.9 });
+    const terrain = new THREE.Mesh(terrainGeo, terrainMat);
+    terrain.rotation.x = -Math.PI / 2;
+    terrain.position.y = -0.1;
+    terrain.receiveShadow = true;
+    scene.add(terrain);
+
+    // Asphalt Material
+    const asphaltMat = new THREE.MeshStandardMaterial({ color: 0x242d3d, roughness: 0.8 });
+
+    // Road North-South
+    const roadNS = new THREE.Mesh(new THREE.PlaneGeometry(ROAD_WIDTH, ROAD_LENGTH), asphaltMat);
+    roadNS.rotation.x = -Math.PI / 2;
+    roadNS.receiveShadow = true;
+    scene.add(roadNS);
+
+    // Road East-West
+    const roadEW = new THREE.Mesh(new THREE.PlaneGeometry(ROAD_LENGTH, ROAD_WIDTH), asphaltMat);
+    roadEW.rotation.x = -Math.PI / 2;
+    roadEW.receiveShadow = true;
+    scene.add(roadEW);
+
+    // Road Markings (White dashed lanes & yellow center lines)
+    const markingMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const yellowMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
+
+    function createRoadMarkings() {
+      const markingsGroup = new THREE.Group();
+
+      // Yellow Center Lines
+      const centerNS1 = new THREE.Mesh(new THREE.PlaneGeometry(0.3, ROAD_LENGTH / 2 - HALF_ROAD), yellowMat);
+      centerNS1.rotation.x = -Math.PI / 2;
+      centerNS1.position.set(0, 0.02, (ROAD_LENGTH / 4 + HALF_ROAD / 2));
+      markingsGroup.add(centerNS1);
+
+      const centerNS2 = centerNS1.clone();
+      centerNS2.position.z = -(ROAD_LENGTH / 4 + HALF_ROAD / 2);
+      markingsGroup.add(centerNS2);
+
+      const centerEW1 = new THREE.Mesh(new THREE.PlaneGeometry(ROAD_LENGTH / 2 - HALF_ROAD, 0.3), yellowMat);
+      centerEW1.rotation.x = -Math.PI / 2;
+      centerEW1.position.set((ROAD_LENGTH / 4 + HALF_ROAD / 2), 0.02, 0);
+      markingsGroup.add(centerEW1);
+
+      const centerEW2 = centerEW1.clone();
+      centerEW2.position.x = -(ROAD_LENGTH / 4 + HALF_ROAD / 2);
+      markingsGroup.add(centerEW2);
+
+      // Stop Lines (at 15m from junction edge)
+      const stopLineNS_N = new THREE.Mesh(new THREE.PlaneGeometry(HALF_ROAD, 0.8), markingMat);
+      stopLineNS_N.rotation.x = -Math.PI / 2;
+      stopLineNS_N.position.set(-HALF_ROAD / 2, 0.03, STOPLINE_DIST);
+      markingsGroup.add(stopLineNS_N);
+
+      const stopLineNS_S = stopLineNS_N.clone();
+      stopLineNS_S.position.set(HALF_ROAD / 2, 0.03, -STOPLINE_DIST);
+      markingsGroup.add(stopLineNS_S);
+
+      const stopLineEW_E = new THREE.Mesh(new THREE.PlaneGeometry(0.8, HALF_ROAD), markingMat);
+      stopLineEW_E.rotation.x = -Math.PI / 2;
+      stopLineEW_E.position.set(STOPLINE_DIST, 0.03, HALF_ROAD / 2);
+      markingsGroup.add(stopLineEW_E);
+
+      const stopLineEW_W = stopLineEW_E.clone();
+      stopLineEW_W.position.set(-STOPLINE_DIST, 0.03, -HALF_ROAD / 2);
+      markingsGroup.add(stopLineEW_W);
+
+      // Pedestrian Zebra Crossings
+      function createZebra(x, z, rot) {
+        const zebra = new THREE.Group();
+        for (let i = -HALF_ROAD + 1; i <= HALF_ROAD - 1; i += 1.6) {
+          const stripe = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 2.5), markingMat);
+          stripe.rotation.x = -Math.PI / 2;
+          stripe.position.set(rot ? 0 : i, 0.025, rot ? i : 0);
+          if (rot) stripe.rotation.z = Math.PI / 2;
+          zebra.add(stripe);
+        }
+        zebra.position.set(x, 0, z);
+        return zebra;
+      }
+      markingsGroup.add(createZebra(0, HALF_ROAD + 2, false));
+      markingsGroup.add(createZebra(0, -HALF_ROAD - 2, false));
+      markingsGroup.add(createZebra(HALF_ROAD + 2, 0, true));
+      markingsGroup.add(createZebra(-HALF_ROAD - 2, 0, true));
+
+      scene.add(markingsGroup);
+    }
+    createRoadMarkings();
+
+    // -------------------------------------------------------------
+    // 4. 3D SENSOR ARRAYS (S1, S2, S3)
+    // -------------------------------------------------------------
+    const sensorsGroup = new THREE.Group();
+
+    // S1: Inductive Loops (15m from center) - Cyan Glowing Pads
+    const s1Geo = new THREE.BoxGeometry(HALF_ROAD - 0.5, 0.08, 3.5);
+    const s1Mat = new THREE.MeshStandardMaterial({
+      color: 0x06b6d4,
+      emissive: 0x0891b2,
+      emissiveIntensity: 0.6,
+      transparent: true,
+      opacity: 0.75
+    });
+
+    const s1_North = new THREE.Mesh(s1Geo, s1Mat);
+    s1_North.position.set(-HALF_ROAD / 2, 0.05, STOPLINE_DIST + 2);
+    sensorsGroup.add(s1_North);
+
+    const s1_South = s1_North.clone();
+    s1_South.position.set(HALF_ROAD / 2, 0.05, -(STOPLINE_DIST + 2));
+    sensorsGroup.add(s1_South);
+
+    const s1_East = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.08, HALF_ROAD - 0.5), s1Mat);
+    s1_East.position.set(STOPLINE_DIST + 2, 0.05, HALF_ROAD / 2);
+    sensorsGroup.add(s1_East);
+
+    const s1_West = s1_East.clone();
+    s1_West.position.set(-(STOPLINE_DIST + 2), 0.05, -HALF_ROAD / 2);
+    sensorsGroup.add(s1_West);
+
+    // S2: Dilemma Zone (40m - 60m) - Orange Safety Bounding Zone
+    const s2Mat = new THREE.MeshStandardMaterial({
+      color: 0xf97316,
+      emissive: 0xea580c,
+      emissiveIntensity: 0.5,
+      transparent: true,
+      opacity: 0.35,
+      roughness: 0.3
+    });
+    const s2GeoNS = new THREE.BoxGeometry(HALF_ROAD, 0.05, 20);
+    const s2GeoEW = new THREE.BoxGeometry(20, 0.05, HALF_ROAD);
+
+    const s2_North = new THREE.Mesh(s2GeoNS, s2Mat);
+    s2_North.position.set(-HALF_ROAD / 2, 0.04, DILEMMA_DIST);
+    sensorsGroup.add(s2_North);
+
+    const s2_South = s2_North.clone();
+    s2_South.position.set(HALF_ROAD / 2, 0.04, -DILEMMA_DIST);
+    sensorsGroup.add(s2_South);
+
+    const s2_East = new THREE.Mesh(s2GeoEW, s2Mat);
+    s2_East.position.set(DILEMMA_DIST, 0.04, HALF_ROAD / 2);
+    sensorsGroup.add(s2_East);
+
+    const s2_West = s2_East.clone();
+    s2_West.position.set(-DILEMMA_DIST, 0.04, -HALF_ROAD / 2);
+    sensorsGroup.add(s2_West);
+
+    // S3: mmWave Radar Cones (100m) - Emerald Green Translucent Scanner
+    const radarMat = new THREE.MeshBasicMaterial({
+      color: 0x10b981,
+      transparent: true,
+      opacity: 0.15,
+      wireframe: true
+    });
+    const radarConeGeo = new THREE.ConeGeometry(HALF_ROAD * 1.5, 30, 16, 2, true);
+
+    const s3_North = new THREE.Mesh(radarConeGeo, radarMat);
+    s3_North.rotation.x = Math.PI / 2;
+    s3_North.position.set(-HALF_ROAD / 2, 0.8, RADAR_DIST - 15);
+    sensorsGroup.add(s3_North);
+
+    const s3_South = new THREE.Mesh(radarConeGeo, radarMat);
+    s3_South.rotation.x = -Math.PI / 2;
+    s3_South.position.set(HALF_ROAD / 2, 0.8, -(RADAR_DIST - 15));
+    sensorsGroup.add(s3_South);
+
+    const s3_East = new THREE.Mesh(radarConeGeo, radarMat);
+    s3_East.rotation.z = -Math.PI / 2;
+    s3_East.position.set(RADAR_DIST - 15, 0.8, HALF_ROAD / 2);
+    sensorsGroup.add(s3_East);
+
+    const s3_West = new THREE.Mesh(radarConeGeo, radarMat);
+    s3_West.rotation.z = Math.PI / 2;
+    s3_West.position.set(-(RADAR_DIST - 15), 0.8, -HALF_ROAD / 2);
+    sensorsGroup.add(s3_West);
+
+    scene.add(sensorsGroup);
+
+    // -------------------------------------------------------------
+    // 5. 3D TRAFFIC LIGHT POSTS & GLOWING EMISSIVE LEDS
+    // -------------------------------------------------------------
+    const trafficLights = [];
+
+    function createTrafficLight(x, z, rotY) {
+      const group = new THREE.Group();
+
+      // Metal Pole
+      const poleGeo = new THREE.CylinderGeometry(0.2, 0.25, 6.5, 16);
+      const metalMat = new THREE.MeshStandardMaterial({ color: 0x4b5563, metalness: 0.8, roughness: 0.3 });
+      const pole = new THREE.Mesh(poleGeo, metalMat);
+      pole.position.y = 3.25;
+      pole.castShadow = true;
+      group.add(pole);
+
+      // Horizontal Mast Arm
+      const mastGeo = new THREE.CylinderGeometry(0.15, 0.15, 4.0, 12);
+      const mast = new THREE.Mesh(mastGeo, metalMat);
+      mast.rotation.z = Math.PI / 2;
+      mast.position.set(1.8, 6.2, 0);
+      group.add(mast);
+
+      // Light Housing
+      const boxGeo = new THREE.BoxGeometry(0.7, 1.8, 0.5);
+      const housingMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.7 });
+      const housing = new THREE.Mesh(boxGeo, housingMat);
+      housing.position.set(3.4, 6.0, 0);
+      group.add(housing);
+
+      // Red, Yellow, Green LED Bulbs
+      const bulbGeo = new THREE.SphereGeometry(0.22, 16, 16);
+
+      const redMat = new THREE.MeshStandardMaterial({ color: 0x330000, emissive: 0x000000 });
+      const redBulb = new THREE.Mesh(bulbGeo, redMat);
+      redBulb.position.set(3.4, 6.5, 0.26);
+      group.add(redBulb);
+
+      const yellowMat = new THREE.MeshStandardMaterial({ color: 0x332200, emissive: 0x000000 });
+      const yellowBulb = new THREE.Mesh(bulbGeo, yellowMat);
+      yellowBulb.position.set(3.4, 6.0, 0.26);
+      group.add(yellowBulb);
+
+      const greenMat = new THREE.MeshStandardMaterial({ color: 0x003311, emissive: 0x000000 });
+      const greenBulb = new THREE.Mesh(bulbGeo, greenMat);
+      greenBulb.position.set(3.4, 5.5, 0.26);
+      group.add(greenBulb);
+
+      group.position.set(x, 0, z);
+      group.rotation.y = rotY;
+      scene.add(group);
+
+      return {
+        group,
+        setPhase: (color) => {
+          // Off colors
+          redMat.emissive.setHex(color === 'red' ? 0xff2222 : 0x000000);
+          redMat.color.setHex(color === 'red' ? 0xff4444 : 0x220000);
+
+          yellowMat.emissive.setHex(color === 'yellow' ? 0xffaa00 : 0x000000);
+          yellowMat.color.setHex(color === 'yellow' ? 0xffcc00 : 0x221100);
+
+          greenMat.emissive.setHex(color === 'green' ? 0x00ff66 : 0x000000);
+          greenMat.color.setHex(color === 'green' ? 0x10b981 : 0x002208);
+        }
+      };
+    }
+
+    const tl_North = createTrafficLight(-HALF_ROAD - 1.5, STOPLINE_DIST + 1, 0);
+    const tl_South = createTrafficLight(HALF_ROAD + 1.5, -STOPLINE_DIST - 1, Math.PI);
+    const tl_East  = createTrafficLight(STOPLINE_DIST + 1, HALF_ROAD + 1.5, -Math.PI / 2);
+    const tl_West  = createTrafficLight(-STOPLINE_DIST - 1, -HALF_ROAD - 1.5, Math.PI / 2);
+
+    trafficLights.push({ dir: 'NS', tl: tl_North });
+    trafficLights.push({ dir: 'NS', tl: tl_South });
+    trafficLights.push({ dir: 'EW', tl: tl_East });
+    trafficLights.push({ dir: 'EW', tl: tl_West });
+
+    // -------------------------------------------------------------
+    // 6. 3D VEHICLE FLEET & AUTONOMOUS DRIVING PHYSICS
+    // -------------------------------------------------------------
+    const vehicles = [];
+    const CAR_COLORS = [0xef4444, 0x3b82f6, 0x10b981, 0xf59e0b, 0x8b5cf6, 0xe5e7eb, 0x111827];
+
+    function createCarMesh(colorHex) {
+      const car = new THREE.Group();
+
+      // Lower Chassis
+      const bodyGeo = new THREE.BoxGeometry(2.1, 0.7, 4.4);
+      const bodyMat = new THREE.MeshStandardMaterial({ color: colorHex, metalness: 0.6, roughness: 0.4 });
+      const body = new THREE.Mesh(bodyGeo, bodyMat);
+      body.position.y = 0.55;
+      body.castShadow = true;
+      car.add(body);
+
+      // Upper Cabin & Glass
+      const cabinGeo = new THREE.BoxGeometry(1.8, 0.65, 2.3);
+      const cabinMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.2, metalness: 0.9 });
+      const cabin = new THREE.Mesh(cabinGeo, cabinMat);
+      cabin.position.set(0, 1.15, -0.2);
+      cabin.castShadow = true;
+      car.add(cabin);
+
+      // Headlights
+      const headMat = new THREE.MeshStandardMaterial({ color: 0xffffee, emissive: 0xffffff, emissiveIntensity: 0.8 });
+      const hlLeft = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.2, 0.1), headMat);
+      hlLeft.position.set(-0.7, 0.6, 2.22);
+      const hlRight = hlLeft.clone();
+      hlRight.position.x = 0.7;
+      car.add(hlLeft);
+      car.add(hlRight);
+
+      // Wheels
+      const wheelGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.25, 12);
+      const wheelMat = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.9 });
+      for (const [wx, wz] of [[-1.05, 1.3], [1.05, 1.3], [-1.05, -1.3], [1.05, -1.3]]) {
+        const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(wx, 0.35, wz);
+        car.add(wheel);
+      }
+
+      return car;
+    }
+
+    class Vehicle3D {
+      constructor(approach) {
+        this.approach = approach; // 'N', 'S', 'E', 'W'
+        this.speed = 10.0 + Math.random() * 4.0; // 10 - 14 m/s (36 - 50 km/h)
+        this.maxSpeed = this.speed;
+        this.mesh = createCarMesh(CAR_COLORS[Math.floor(Math.random() * CAR_COLORS.length)]);
+
+        // Initial Position along approach
+        const startDist = 135 + Math.random() * 20;
+        this.distance = startDist; // Distance from intersection center
+        this.laneX = 0;
+        this.laneZ = 0;
+
+        if (approach === 'N') {
+          this.laneX = -HALF_ROAD / 2;
+          this.mesh.rotation.y = Math.PI; // Heading South (-Z to +Z in Three.js coords)
+        } else if (approach === 'S') {
+          this.laneX = HALF_ROAD / 2;
+          this.mesh.rotation.y = 0; // Heading North
+        } else if (approach === 'E') {
+          this.laneZ = HALF_ROAD / 2;
+          this.mesh.rotation.y = Math.PI / 2; // Heading West
+        } else if (approach === 'W') {
+          this.laneZ = -HALF_ROAD / 2;
+          this.mesh.rotation.y = -Math.PI / 2; // Heading East
+        }
+
+        this.hasCrossed = false;
+        scene.add(this.mesh);
+        this.updateMeshPosition();
+      }
+
+      updateMeshPosition() {
+        if (this.approach === 'N') {
+          this.mesh.position.set(this.laneX, 0, this.distance);
+        } else if (this.approach === 'S') {
+          this.mesh.position.set(this.laneX, 0, -this.distance);
+        } else if (this.approach === 'E') {
+          this.mesh.position.set(this.distance, 0, this.laneZ);
+        } else if (this.approach === 'W') {
+          this.mesh.position.set(-this.distance, 0, this.laneZ);
+        }
+      }
+
+      update(dt, currentSignal, carAheadDist) {
+        // Stop line is at 15m from center
+        const isRed = (currentSignal === 'red' || currentSignal === 'yellow');
+        const approachingStop = (this.distance > STOPLINE_DIST && this.distance < STOPLINE_DIST + 20);
+
+        // Target stop distance (either stopline on red, or car ahead - 6m)
+        let targetStop = -999;
+        if (carAheadDist !== null && carAheadDist < this.distance) {
+          targetStop = carAheadDist + 6.0;
+        } else if (isRed && this.distance > STOPLINE_DIST) {
+          targetStop = STOPLINE_DIST + 1.5;
+        }
+
+        if (targetStop > 0 && this.distance - targetStop < 35 && this.distance > targetStop) {
+          // Decelerate smoothly
+          const gap = this.distance - targetStop;
+          this.speed = Math.max(0, Math.min(this.speed, gap * 0.45));
+        } else {
+          // Accelerate back to cruise speed
+          this.speed = Math.min(this.maxSpeed, this.speed + 8.0 * dt);
+        }
+
+        this.distance -= this.speed * dt;
+        this.updateMeshPosition();
+
+        if (this.distance < 0 && !this.hasCrossed) {
+          this.hasCrossed = true;
+          totalVehiclesServed++;
+          document.getElementById("stat-served").innerText = totalVehiclesServed;
+        }
+      }
+
+      destroy() {
+        scene.remove(this.mesh);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 7. VAC V-BOT AUTONOMOUS CONTROLLER & SIGNAL STATE MACHINE
+    // -------------------------------------------------------------
+    let currentPhase = 0; // 0: NS Green, 1: NS Yellow, 2: EW Green, 3: EW Yellow
+    let phaseTimer = 0;
+    const MIN_GREEN = 10;
+    const MAX_GREEN = 45;
+    const YELLOW_TIME = 3;
+
+    let isVacMode = true; // VAC V-BOT vs Fixed-Time
+    let totalVehiclesServed = 0;
+    let totalDzpCount = 0;
+
+    function evaluateSignals(dt) {
+      phaseTimer += dt;
+
+      // Extract sensor counts across arms
+      const nStats = countArmSensors('N');
+      const sStats = countArmSensors('S');
+      const eStats = countArmSensors('E');
+      const wStats = countArmSensors('W');
+
+      // Update UI Sensor Tables
+      updateSensorDOM(nStats, sStats, eStats, wStats);
+
+      const isNS = (currentPhase === 0 || currentPhase === 1);
+      const isYellow = (currentPhase === 1 || currentPhase === 3);
+
+      // Apply light signals to 3D posts
+      trafficLights.forEach(({ dir, tl }) => {
+        if (dir === 'NS') {
+          tl.setPhase(isNS ? (isYellow ? 'yellow' : 'green') : 'red');
+        } else {
+          tl.setPhase(!isNS ? (isYellow ? 'yellow' : 'green') : 'red');
+        }
+      });
+
+      // Update HUD Badge
+      const phaseBadge = document.getElementById("phase-badge");
+      const phaseText = document.getElementById("phase-text");
+      const dzpAlert = document.getElementById("dzp-alert");
+
+      if (isNS) {
+        phaseBadge.className = `hud-card status-badge ${isYellow ? 'badge-yellow' : 'badge-green'}`;
+        phaseText.innerText = `NORTH-SOUTH ${isYellow ? 'YELLOW' : 'GREEN'} (${Math.floor(phaseTimer)}s)`;
+      } else {
+        phaseBadge.className = `hud-card status-badge ${isYellow ? 'badge-yellow' : 'badge-green'}`;
+        phaseText.innerText = `EAST-WEST ${isYellow ? 'YELLOW' : 'GREEN'} (${Math.floor(phaseTimer)}s)`;
+      }
+
+      // Controller Logic
+      if (isYellow) {
+        dzpAlert.style.display = "none";
+        if (phaseTimer >= YELLOW_TIME) {
+          currentPhase = (currentPhase + 1) % 4;
+          phaseTimer = 0;
+        }
+        return;
+      }
+
+      if (!isVacMode) {
+        // Fixed-Time: 30s NS, 30s EW
+        if (phaseTimer >= 30) {
+          currentPhase = (currentPhase + 1) % 4;
+          phaseTimer = 0;
+        }
+        return;
+      }
+
+      // VAC V-BOT Intelligent Model
+      const activeArmStats = isNS ? [nStats, sStats] : [eStats, wStats];
+      const opposingArmStats = isNS ? [eStats, wStats] : [nStats, sStats];
+
+      // 1. Dilemma Zone Protection (DZP) Check:
+      // If vehicles in 40-60m zone approaching green at speed (>7 m/s), HOLD green!
+      let dilemmaHoldTriggered = false;
+      for (const arm of activeArmStats) {
+        if (arm.s2Count > 0 && arm.maxSpeed >= 7.0 && phaseTimer < MAX_GREEN) {
+          dilemmaHoldTriggered = true;
+          break;
+        }
+      }
+
+      if (dilemmaHoldTriggered) {
+        dzpAlert.style.display = "block";
+        totalDzpCount++;
+        document.getElementById("stat-holds").innerText = Math.floor(totalDzpCount / 30);
+        return; // Hold green for safety!
+      } else {
+        dzpAlert.style.display = "none";
+      }
+
+      // 2. Safety Bounds
+      if (phaseTimer < MIN_GREEN) return;
+      if (phaseTimer >= MAX_GREEN) {
+        currentPhase = (currentPhase + 1) % 4;
+        phaseTimer = 0;
+        return;
+      }
+
+      // 3. Urgency Decision Engine: f(R,G,R,G) = g(sum(x_i * S_i))
+      const activeUrgency = computeUrgency(activeArmStats);
+      const opposingUrgency = computeUrgency(opposingArmStats);
+
+      // Gap-out or opposing queue pressure triggers phase switch
+      if (opposingUrgency > activeUrgency * 1.5 && opposingUrgency > 3.0) {
+        currentPhase = (currentPhase + 1) % 4; // Switch to Yellow
+        phaseTimer = 0;
+      }
+    }
+
+    function computeUrgency(armStatsArray) {
+      let total = 0;
+      armStatsArray.forEach(arm => {
+        // S1 stopline queue weight = 1.0
+        total += arm.s1Count * 1.2;
+        // S3 advance radar weighted by speed
+        total += arm.s3Count * (1.0 + (arm.maxSpeed / 14.0) * 0.5) * 0.6;
+      });
+      return total;
+    }
+
+    function countArmSensors(appCode) {
+      let s1 = 0, s2 = 0, s3 = 0, maxSpd = 0;
+      vehicles.forEach(v => {
+        if (v.approach === appCode && v.distance > 0) {
+          if (v.distance <= STOPLINE_DIST + 5) s1++;
+          if (v.distance >= 40 && v.distance <= 60) s2++;
+          if (v.distance >= 70 && v.distance <= 110) s3++;
+          maxSpd = Math.max(maxSpd, v.speed);
+        }
+      });
+      return { s1Count: s1, s2Count: s2, s3Count: s3, maxSpeed: maxSpd };
+    }
+
+    function updateSensorDOM(n, s, e, w) {
+      document.getElementById("s1-n").innerText = `${n.s1Count} veh`;
+      document.getElementById("s2-n").innerText = n.s2Count > 0 ? "⚠️ DILEMMA" : "CLEAR";
+      document.getElementById("s2-n").style.color = n.s2Count > 0 ? "#f59e0b" : "#10b981";
+      document.getElementById("s3-n").innerText = `${n.s3Count} veh (${n.maxSpeed.toFixed(1)} m/s)`;
+
+      document.getElementById("s1-s").innerText = `${s.s1Count} veh`;
+      document.getElementById("s2-s").innerText = s.s2Count > 0 ? "⚠️ DILEMMA" : "CLEAR";
+      document.getElementById("s2-s").style.color = s.s2Count > 0 ? "#f59e0b" : "#10b981";
+      document.getElementById("s3-s").innerText = `${s.s3Count} veh (${s.maxSpeed.toFixed(1)} m/s)`;
+
+      document.getElementById("s1-e").innerText = `${e.s1Count} veh`;
+      document.getElementById("s2-e").innerText = e.s2Count > 0 ? "⚠️ DILEMMA" : "CLEAR";
+      document.getElementById("s2-e").style.color = e.s2Count > 0 ? "#f59e0b" : "#10b981";
+      document.getElementById("s3-e").innerText = `${e.s3Count} veh (${e.maxSpeed.toFixed(1)} m/s)`;
+
+      document.getElementById("s1-w").innerText = `${w.s1Count} veh`;
+      document.getElementById("s2-w").innerText = w.s2Count > 0 ? "⚠️ DILEMMA" : "CLEAR";
+      document.getElementById("s2-w").style.color = w.s2Count > 0 ? "#f59e0b" : "#10b981";
+      document.getElementById("s3-w").innerText = `${w.s3Count} veh (${w.maxSpeed.toFixed(1)} m/s)`;
+
+      // Simple wait calculation
+      const avgWait = (n.s1Count + s.s1Count + e.s1Count + w.s1Count) * 1.8;
+      document.getElementById("stat-wait").innerText = `${avgWait.toFixed(1)}s`;
+    }
+
+    // -------------------------------------------------------------
+    // 8. VEHICLE SPAWNER & MAIN SIMULATION LOOP
+    // -------------------------------------------------------------
+    let spawnTimer = 0;
+    const APPROACHES = ['N', 'S', 'E', 'W'];
+
+    function spawnVehicle(app) {
+      const approach = app || APPROACHES[Math.floor(Math.random() * APPROACHES.length)];
+      vehicles.push(new Vehicle3D(approach));
+    }
+
+    // Initial Fleet
+    for (let i = 0; i < 8; i++) spawnVehicle();
+
+    function spawnTrafficSurge() {
+      for (let i = 0; i < 15; i++) {
+        setTimeout(() => spawnVehicle(), i * 250);
+      }
+    }
+
+    function toggleController() {
+      isVacMode = !isVacMode;
+      const btn = document.getElementById("btn-toggle-ctrl");
+      const tag = document.getElementById("ctrl-mode");
+      if (isVacMode) {
+        btn.innerText = "🤖 Controller: VAC V-BOT";
+        btn.classList.add("btn-active");
+        tag.innerText = "VAC V-BOT";
+        tag.style.color = "#10b981";
+      } else {
+        btn.innerText = "⏱️ Controller: FIXED-TIME";
+        btn.classList.remove("btn-active");
+        tag.innerText = "FIXED-TIME";
+        tag.style.color = "#f59e0b";
+      }
+    }
+
+    function toggleSensorVisuals() {
+      sensorsGroup.visible = !sensorsGroup.visible;
+    }
+
+    function resetSimulation() {
+      while (vehicles.length > 0) {
+        const v = vehicles.pop();
+        v.destroy();
+      }
+      totalVehiclesServed = 0;
+      totalDzpCount = 0;
+      document.getElementById("stat-served").innerText = "0";
+      document.getElementById("stat-holds").innerText = "0";
+      for (let i = 0; i < 8; i++) spawnVehicle();
+    }
+
+    function setCameraView(preset) {
+      if (preset === 'iso') {
+        camera.position.set(110, 95, 120);
+        controls.target.set(0, 0, 0);
+      } else if (preset === 'top') {
+        camera.position.set(0, 180, 0.1);
+        controls.target.set(0, 0, 0);
+      } else if (preset === 'north') {
+        camera.position.set(-HALF_ROAD / 2, 4, 85);
+        controls.target.set(-HALF_ROAD / 2, 2, 0);
+      } else if (preset === 'east') {
+        camera.position.set(85, 4, HALF_ROAD / 2);
+        controls.target.set(0, 2, HALF_ROAD / 2);
+      }
+    }
+
+    // Clock
+    const clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const dt = Math.min(clock.getDelta(), 0.1);
+
+      // Background Traffic Spawning
+      spawnTimer += dt;
+      if (spawnTimer > 1.8) {
+        spawnVehicle();
+        spawnTimer = 0;
+      }
+
+      // Controller Evaluation
+      evaluateSignals(dt);
+
+      // Signal state for each approach
+      const isNS = (currentPhase === 0 || currentPhase === 1);
+      const isYellow = (currentPhase === 1 || currentPhase === 3);
+      const nsSig = isNS ? (isYellow ? 'yellow' : 'green') : 'red';
+      const ewSig = !isNS ? (isYellow ? 'yellow' : 'green') : 'red';
+
+      // Sort vehicles by distance on each approach to prevent overlapping
+      APPROACHES.forEach(app => {
+        const appVehicles = vehicles.filter(v => v.approach === app && v.distance > 0)
+                                    .sort((a, b) => a.distance - b.distance);
+        for (let i = 0; i < appVehicles.length; i++) {
+          const v = appVehicles[i];
+          const carAhead = (i > 0) ? appVehicles[i - 1].distance : null;
+          const sig = (app === 'N' || app === 'S') ? nsSig : ewSig;
+          v.update(dt, sig, carAhead);
+        }
+      });
+
+      // Cleanup departed vehicles
+      for (let i = vehicles.length - 1; i >= 0; i--) {
+        if (vehicles[i].distance < -140) {
+          vehicles[i].destroy();
+          vehicles.splice(i, 1);
+        }
+      }
+
+      // Pulse Radar & Dilemma Rings
+      const time = clock.getElapsedTime();
+      s2Mat.opacity = 0.3 + Math.sin(time * 4) * 0.15;
+      radarMat.opacity = 0.15 + Math.cos(time * 3) * 0.08;
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    animate();
+  </script>
+</body>
+</html>
