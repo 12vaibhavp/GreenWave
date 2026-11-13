@@ -121,8 +121,8 @@ def main():
     )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
-    # 1. Server command
-    server_p = subparsers.add_parser("server", help="Start FastAPI Backend and Web Dashboard")
+    # 1. Server / Dashboard command
+    server_p = subparsers.add_parser("server", aliases=["dashboard"], help="Start FastAPI Backend and Web Dashboard")
     server_p.add_argument("--host", type=str, default=settings.HOST, help="Host address")
     server_p.add_argument("--port", type=int, default=settings.PORT, help="Port number")
     server_p.add_argument("--reload", action="store_true", help="Enable hot reload")
@@ -158,7 +158,7 @@ def main():
 
     args = parser.parse_args()
 
-    if args.command == "server":
+    if args.command in ("server", "dashboard"):
         cmd_server(args)
     elif args.command == "vbot":
         cmd_vbot(args)
